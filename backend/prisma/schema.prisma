@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id            Int         @id @default(autoincrement())
+  platform      String
+  sessionToken  String?     @map("session_token")
+  apiKey        String?     @map("api_key")
+  name          String
+  status        String      @default("active")
+  planType      String      @default("FREE") @map("plan_type")
+  quotaPercent  Float       @default(100.0) @map("quota_percent")
+  lastSync      DateTime    @default(now()) @map("last_sync")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  quotaLogs     QuotaLog[]
+
+  @@map("accounts")
+}
+
+model QuotaLog {
+  id            Int       @id @default(autoincrement())
+  accountId     Int       @map("account_id")
+  quotaPercent  Float     @map("quota_percent")
+  burnRate      Float     @map("burn_rate")
+  recordedAt    DateTime  @default(now()) @map("recorded_at")
+
+  account       Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([recordedAt])
+  @@map("quota_logs")
+}

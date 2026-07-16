@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Dashboard() {
+  const { t } = useLanguage();
   const [data, setData] = useState([]);
   
-  // Mock data for initial render, usually fetched from backend
   useEffect(() => {
-    // Generate some mock history data for the chart
+    // Generate mock multi-line data for 3 accounts
     const generateData = () => {
       const result = [];
-      let currentQuota = 100;
+      let q1 = 100, q2 = 80, q3 = 60;
       for (let i = 14; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         result.push({
           date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          quota: parseFloat(currentQuota.toFixed(1)),
-          burn: parseFloat((Math.random() * 2).toFixed(1))
+          "GPT-4 Main": parseFloat(q1.toFixed(1)),
+          "Claude Opus": parseFloat(q2.toFixed(1)),
+          "Gemini Test": parseFloat(q3.toFixed(1))
         });
-        currentQuota = Math.max(0, currentQuota - (Math.random() * 5));
+        q1 = Math.max(0, q1 - (Math.random() * 3));
+        q2 = Math.max(0, q2 - (Math.random() * 2));
+        q3 = Math.max(0, q3 - (Math.random() * 5));
       }
       return result;
     };
@@ -28,39 +32,36 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1>Dashboard</h1>
+      <h1>{t('dashboard')}</h1>
       
-      <div className="grid-3 mb-6" style={{ marginBottom: '2rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="glass-card">
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Total Active Accounts</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', marginTop: '8px' }}>12</div>
+          <h3 className="text-textMuted text-sm">{t('total_active_accounts')}</h3>
+          <div className="text-3xl font-bold mt-2">12</div>
         </div>
         <div className="glass-card">
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Avg Quota Remaining</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', marginTop: '8px', color: 'var(--success)' }}>76%</div>
+          <h3 className="text-textMuted text-sm">{t('avg_quota_remaining')}</h3>
+          <div className="text-3xl font-bold mt-2 text-success">76%</div>
         </div>
         <div className="glass-card">
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Avg Burn Rate (Daily)</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', marginTop: '8px', color: 'var(--warning)' }}>2.4%</div>
+          <h3 className="text-textMuted text-sm">{t('avg_burn_rate')}</h3>
+          <div className="text-3xl font-bold mt-2 text-warning">2.4%</div>
         </div>
       </div>
 
-      <div className="glass-card" style={{ height: '400px' }}>
-        <h2 style={{ marginBottom: '1.5rem' }}>Global Quota Burn History</h2>
+      <div className="glass-card h-[450px]">
+        <h2 className="mb-6">{t('global_quota_history')}</h2>
         <ResponsiveContainer width="100%" height="85%">
-          <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorQuota" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
+          <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
+            <XAxis dataKey="date" stroke="var(--textMuted)" fontSize={12} tickLine={false} axisLine={false} />
+            <YAxis stroke="var(--textMuted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
             <Tooltip />
-            <Area type="monotone" dataKey="quota" stroke="var(--primary)" fillOpacity={1} fill="url(#colorQuota)" />
-          </AreaChart>
+            <Legend verticalAlign="top" height={36}/>
+            <Line type="monotone" dataKey="GPT-4 Main" stroke="#38bdf8" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+            <Line type="monotone" dataKey="Claude Opus" stroke="#a855f7" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+            <Line type="monotone" dataKey="Gemini Test" stroke="#22c55e" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>

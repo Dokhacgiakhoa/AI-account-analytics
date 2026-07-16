@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Save } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function AddPlatform() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     platform: 'OpenAI',
     name: '',
@@ -17,7 +19,7 @@ export default function AddPlatform() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ type: 'loading', message: 'Saving account...' });
+    setStatus({ type: 'loading', message: '...' });
     
     try {
       const res = await fetch('http://localhost:3001/api/accounts', {
@@ -27,25 +29,25 @@ export default function AddPlatform() {
       });
       
       if (res.ok) {
-        setStatus({ type: 'success', message: 'Account added successfully!' });
+        setStatus({ type: 'success', message: t('account_added_success') });
         setFormData({ ...formData, name: '', session_token: '', api_key: '' });
       } else {
         throw new Error('Failed to save');
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'Error connecting to backend. (Mock mode: Pretend it saved!)' });
+      setStatus({ type: 'error', message: t('error_saving') });
     }
   };
 
   return (
     <div className="add-platform">
-      <h1>Add New Platform</h1>
+      <h1>{t('add_new_platform')}</h1>
       
       <div className="glass-card" style={{ maxWidth: '600px' }}>
         <form onSubmit={handleSubmit}>
           
           <div className="form-group">
-            <label className="form-label">Platform</label>
+            <label className="form-label">{t('platform')}</label>
             <select name="platform" className="form-control" value={formData.platform} onChange={handleChange}>
               <option value="OpenAI">OpenAI (ChatGPT)</option>
               <option value="Anthropic">Anthropic (Claude)</option>
@@ -54,7 +56,7 @@ export default function AddPlatform() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Account Name (Alias)</label>
+            <label className="form-label">{t('account_name')}</label>
             <input 
               type="text" 
               name="name"
@@ -67,7 +69,7 @@ export default function AddPlatform() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Plan Type</label>
+            <label className="form-label">{t('plan_type')}</label>
             <select name="plan_type" className="form-control" value={formData.plan_type} onChange={handleChange}>
               <option value="FREE">FREE</option>
               <option value="PRO">PRO / PLUS</option>
@@ -76,22 +78,22 @@ export default function AddPlatform() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Session Token (Cookie)</label>
+            <label className="form-label">{t('session_token')}</label>
             <textarea 
               name="session_token"
               className="form-control" 
               rows="3" 
-              placeholder="Paste session token here..."
+              placeholder="..."
               value={formData.session_token}
               onChange={handleChange}
             ></textarea>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-              Required for web scraping quota if API key is not available.
+              {t('session_token_help')}
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">API Key (Optional)</label>
+            <label className="form-label">{t('api_key_optional')}</label>
             <input 
               type="password" 
               name="api_key"
@@ -105,11 +107,11 @@ export default function AddPlatform() {
           <div style={{ marginTop: '2rem' }}>
             <button type="submit" className="btn btn-primary">
               <Save size={18} />
-              Save Account
+              {t('save_account')}
             </button>
           </div>
 
-          {status.message && (
+          {status.message && status.type !== 'loading' && (
             <div style={{ 
               marginTop: '1rem', 
               padding: '12px', 

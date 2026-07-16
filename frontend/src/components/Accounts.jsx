@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Accounts() {
+  const { t } = useLanguage();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +15,6 @@ export default function Accounts() {
       setAccounts(data);
     } catch (error) {
       console.error("Failed to fetch accounts", error);
-      // Fallback mock data if backend isn't running yet
       setAccounts([
         { id: 1, name: 'Main GPT-4', platform: 'OpenAI', plan_type: 'PRO', quota_percent: 85.5 },
         { id: 2, name: 'Claude Opus', platform: 'Anthropic', plan_type: 'PRO', quota_percent: 42.1 },
@@ -37,10 +38,10 @@ export default function Accounts() {
   return (
     <div className="accounts">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1>Accounts Overview</h1>
+        <h1>{t('accounts_overview')}</h1>
         <button className="btn btn-primary" onClick={fetchAccounts} disabled={loading}>
           <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-          Refresh
+          {t('refresh')}
         </button>
       </div>
 
@@ -59,7 +60,7 @@ export default function Accounts() {
             
             <div style={{ marginTop: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '4px' }}>
-                <span>Quota Remaining</span>
+                <span>{t('quota_remaining')}</span>
                 <span style={{ fontWeight: '600', color: getQuotaColor(acc.quota_percent) }}>
                   {acc.quota_percent.toFixed(1)}%
                 </span>
