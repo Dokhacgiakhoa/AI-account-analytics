@@ -22,7 +22,7 @@ export default function Dashboard() {
   const fetchAccounts = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch(import.meta.env.VITE_API_URL + '/api/accounts', {
+      const res = await fetch((import.meta.env.VITE_BACKEND_URL || '') + '/api/accounts', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -70,7 +70,7 @@ export default function Dashboard() {
           if (accountsData && accountsData.length > 0) {
             setSyncStatus('Đang lưu vào Database...');
             const token = localStorage.getItem('auth_token');
-            const res = await fetch(import.meta.env.VITE_API_URL + '/api/sync-cockpit', {
+            const res = await fetch((import.meta.env.VITE_BACKEND_URL || '') + '/api/sync-cockpit', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
