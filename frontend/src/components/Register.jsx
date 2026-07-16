@@ -6,11 +6,13 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
     try {
       const response = await fetch('https://ai-analytics-backend-gtdk.onrender.com/api/auth/register', {
@@ -29,6 +31,8 @@ export default function Register() {
       navigate('/login');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,8 +73,8 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition-colors">
-            Tạo Tài Khoản
+          <button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-50">
+            {isLoading ? 'Đang tạo tài khoản (Có thể mất 1 phút)...' : 'Tạo Tài Khoản'}
           </button>
         </form>
         <div className="mt-4 text-center text-sm">
