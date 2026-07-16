@@ -183,15 +183,24 @@ app.post('/api/sync-cockpit', authenticateToken, async (req, res) => {
       // Giả sử Cockpit trả về platform, id nội bộ của nó, tên, plan_type, quota (ví dụ: số % hoặc text)
       // Chúng ta sẽ upsert dựa trên userId và một định danh của account (có thể dùng name + platform làm key tạm thời)
       
-      const accPlatform = cockpitAcc.platform || 'Unknown';
-      const accName = cockpitAcc.name || 'Cockpit Sync';
-      const accPlan = cockpitAcc.plan_type || 'FREE';
+      const accPlatform = cockpitAcc.platform || cockpitAcc.provider || cockpitAcc.type || 'Unknown';
+      
+      // Try to find an identifier (email, name, username, id)
+      let accName = cockpitAcc.email || cockpitAcc.name || cockpitAcc.username || cockpitAcc.account || cockpitAcc.id;
+      if (!accName) {
+        // Fallback to a random ID to prevent overwriting if we don't know the structure
+        accName = 'Account ' + Math.floor(Math.random() * 10000);
+      }
+
+      const accPlan = cockpitAcc.plan_type || cockpitAcc.plan || cockpitAcc.subscription || cockpitAcc.tier || 'FREE';
       
       // Chuyển đổi quota thành percent
       let quotaPercent = 100.0;
       if (typeof cockpitAcc.quota === 'number') quotaPercent = cockpitAcc.quota;
-      else if (cockpitAcc.quota && cockpitAcc.quota.percent) quotaPercent = cockpitAcc.quota.percent;
-      else if (cockpitAcc.quotaPercent) quotaPercent = cockpitAcc.quotaPercent;
+      else if (cockpitAcc.quota && typeof cockpitAcc.quota.percent === 'number') quotaPercent = cockpitAcc.quota.percent;
+      else if (typeof cockpitAcc.quotaPercent === 'number') quotaPercent = cockpitAcc.quotaPercent;
+      else if (typeof cockpitAcc.percentage === 'number') quotaPercent = cockpitAcc.percentage;
+      else if (cockpitAcc.limits && typeof cockpitAcc.limits.percent === 'number') quotaPercent = cockpitAcc.limits.percent;
 
       // Tìm xem account này đã có trong db chưa
       let existingAccount = await prisma.account.findFirst({
