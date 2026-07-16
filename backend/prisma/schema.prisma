@@ -11,8 +11,21 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  accounts  Account[]
+
+  @@map("users")
+}
+
 model Account {
   id            Int         @id @default(autoincrement())
+  userId        Int         @map("user_id")
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   platform      String
   sessionToken  String?     @map("session_token")
   apiKey        String?     @map("api_key")
