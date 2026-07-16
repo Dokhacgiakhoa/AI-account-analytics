@@ -5,9 +5,7 @@ const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const CryptoJS = require('crypto-js');
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+const prisma = new PrismaClient({});
 const app = express();
 app.use(cors());
 app.use(express.json());
